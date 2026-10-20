@@ -7,7 +7,7 @@ menu bar, with Auto / Manual / Curve control in a click-down popover.
 I built it because I like a laptop that stays cool to the touch, and I didn't want
 to keep paying for a fan app to get that. It runs every day on my 14-inch M1 Pro
 MacBook Pro (MacBookPro18,3, macOS 26), alongside its sister project
-[Battery Tool]({{BATTERY_TOOL_REPO_URL}}), which moves everyday apps onto the
+[Battery Tool](https://github.com/noahberry01123/battery-tool), which moves everyday apps onto the
 efficiency cores. The story behind both: [Running My M1 Pro on Its Efficiency Cores]({{MEDIUM_ARTICLE_URL}}).
 
 > **Use at your own risk.** This is a personal project that writes to the SMC (the
@@ -42,7 +42,7 @@ config file  <--writes--  FanCurve.app (menu bar, your user)
 ## Install (one command)
 
 ```bash
-git clone {{FANCURVE_REPO_URL}} fancurve
+git clone https://github.com/noahberry01123/fancurve fancurve
 cd fancurve
 ./install.sh
 ```
@@ -119,7 +119,7 @@ No third-party dependencies. Tested on M1 Pro / macOS 26.
 
 ## Related
 
-- [Battery Tool]({{BATTERY_TOOL_REPO_URL}}) — charge limit, heat guard and an
+- [Battery Tool](https://github.com/noahberry01123/battery-tool) — charge limit, heat guard and an
   Extreme Low Power Mode that runs everyday apps on the efficiency cores.
 
 ## License
