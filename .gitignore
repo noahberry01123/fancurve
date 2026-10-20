@@ -1,0 +1,6 @@
+# Build output (make, build_app.sh)
+/fancurve
+/fancurved
+/FanCurve.app/
+*.o
+.DS_Store

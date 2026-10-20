@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.fancurve.curve</string>
+
+    <!-- Runs the temperature curve as root at boot.
+         Edit the last three args to change LOW / HIGH / interval-seconds. -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/fancurve</string>
+        <string>curve</string>
+        <string>55</string>
+        <string>90</string>
+        <string>3</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/var/log/fancurve.log</string>
+    <key>StandardErrorPath</key>
+    <string>/var/log/fancurve.log</string>
+</dict>
+</plist>
