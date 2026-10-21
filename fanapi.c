@@ -1,8 +1,12 @@
 #include "fanapi.h"
 #include "smc.h"
+#include <fcntl.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 const char *kConfigPath = "/Library/Application Support/FanCurve/config";
 
@@ -82,11 +86,18 @@ int FanSetMode(int idx, int manual) {
 }
 
 int FanSetPercent(int idx, double pct) {
-    double mn, mx;
-    if (!FanInfo(idx, NULL, &mn, &mx, NULL, NULL)) return 0;
+    // The fan's own limits must be read successfully and make sense; otherwise write nothing
+    // (a failed read used to give mn = mx = 0 and so a 0 rpm target, below the firmware minimum).
+    char k[5]; double mn, mx;
+    fkey(k, idx, "Mn"); if (!rd(k, &mn)) return 0;
+    fkey(k, idx, "Mx"); if (!rd(k, &mx)) return 0;
+    if (!isfinite(mn) || !isfinite(mx) || mn <= 0 || mx <= mn) return 0;
+    if (!isfinite(pct)) return 0;                // NaN/inf would pass the range checks below
     if (pct < 0) pct = 0;
     if (pct > 100) pct = 100;
-    double rpm = mn + pct / 100.0 * (mx - mn);   // stays within [mn,mx]
+    double rpm = mn + pct / 100.0 * (mx - mn);
+    if (rpm < mn) rpm = mn;                      // belt and braces: never outside [mn, mx]
+    if (rpm > mx) rpm = mx;
 
     char ktg[5]; fkey(ktg, idx, "Tg");
     SMCVal_t tg;
@@ -97,23 +108,37 @@ int FanSetPercent(int idx, double pct) {
 }
 
 void ConfigDefaults(FanConfig *c) {
+    memset(c->mode, 0, sizeof c->mode);
     strcpy(c->mode, "auto");
     c->percent = 50; c->low = 55; c->high = 90;
 }
 
+// Numbers from the config file: finite and within [lo, hi], else the default.
+static double sane(const char *s, double lo, double hi, double def) {
+    char *end; double v = strtod(s, &end);
+    return (end != s && isfinite(v) && v >= lo && v <= hi) ? v : def;
+}
+
 int ConfigRead(FanConfig *out) {
     ConfigDefaults(out);
-    FILE *f = fopen(kConfigPath, "r");
-    if (!f) return 0;
+    // The file is user-writable and read by a root daemon: refuse symlinks, FIFOs, devices and
+    // anything large, so it can never block or flood the daemon (O_NONBLOCK: a FIFO cannot hang open).
+    int fd = open(kConfigPath, O_RDONLY | O_NOFOLLOW | O_NONBLOCK);
+    if (fd < 0) return 0;
+    struct stat st;
+    if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode) || st.st_size > 4096) { close(fd); return 0; }
+    FILE *f = fdopen(fd, "r");
+    if (!f) { close(fd); return 0; }
     char line[128], key[32], sval[32];
     while (fgets(line, sizeof line, f)) {
         if (sscanf(line, "%31s %31s", key, sval) != 2) continue;
-        if      (!strcmp(key, "mode"))    strncpy(out->mode, sval, sizeof out->mode - 1);
-        else if (!strcmp(key, "percent")) out->percent = atof(sval);
-        else if (!strcmp(key, "low"))     out->low  = atof(sval);
-        else if (!strcmp(key, "high"))    out->high = atof(sval);
+        if      (!strcmp(key, "mode"))    { strncpy(out->mode, sval, sizeof out->mode - 1); out->mode[sizeof out->mode - 1] = 0; }
+        else if (!strcmp(key, "percent")) out->percent = sane(sval, 0, 100, 50);
+        else if (!strcmp(key, "low"))     out->low  = sane(sval, 20, 110, 55);
+        else if (!strcmp(key, "high"))    out->high = sane(sval, 20, 110, 90);
     }
     fclose(f);
+    if (out->high <= out->low) { out->low = 55; out->high = 90; }   // a curve needs low < high
     return 1;
 }
 

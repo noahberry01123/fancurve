@@ -39,7 +39,12 @@ undaemon:
 	rm -f $(DAEMON)
 	@echo "daemon removed"
 
+# Config-parsing tests (no SMC writes, no root).
+test: tests/test_config.c fanapi.c smc.c fanapi.h smc.h
+	$(CC) $(CFLAGS) -I. -o tests/test_config tests/test_config.c smc.c $(LDLIBS)
+	./tests/test_config
+
 clean:
 	rm -f $(BIN) fancurved fanapi.o smc.o powerstate.o main.o
 
-.PHONY: all install uninstall daemon undaemon clean
+.PHONY: all install uninstall daemon undaemon clean test

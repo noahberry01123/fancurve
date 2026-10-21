@@ -8,6 +8,7 @@
 #include "powerstate.h"
 #include "smc.h"
 #include <dispatch/dispatch.h>
+#include <math.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -72,7 +73,9 @@ static void apply_config(const FanConfig *c, double t, int fans) {
     if (strcmp(c->mode, "manual") == 0) {
         for (int i = 0; i < fans; i++) { FanSetMode(i, 1); FanSetPercent(i, c->percent); }
     } else if (strcmp(c->mode, "curve") == 0) {
-        double frac = (c->high > c->low && t >= 0) ? (t - c->low) / (c->high - c->low) : 0;
+        // Temperature unknown -> full speed (the safe direction), not minimum.
+        double frac = t < 0 ? 1 : (c->high > c->low) ? (t - c->low) / (c->high - c->low) : 1;
+        if (!isfinite(frac)) frac = 1;
         if (frac < 0) frac = 0;
         if (frac > 1) frac = 1;
         for (int i = 0; i < fans; i++) { FanSetMode(i, 1); FanSetPercent(i, frac * 100.0); }

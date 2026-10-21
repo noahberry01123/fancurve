@@ -15,10 +15,11 @@ efficiency cores. The story behind both: [Running My M1 Pro on Its Efficiency Co
 > software comes with no warranty and the author accepts no liability (see
 > [LICENSE](LICENSE)). It is not affiliated with Apple or with Macs Fan Control.
 
-**Safety:** in normal operation every target speed is clamped to each fan's own
-`F<n>Mn`/`F<n>Mx` range as reported by the SMC. Known edge cases (an SMC read of the
-limits failing, or invalid values in the config file) can bypass the clamp; they are
-listed as open issues.
+**Safety:** every target speed is clamped to each fan's own `F<n>Mn`/`F<n>Mx` range as
+reported by the SMC. If those limits can't be read or don't make sense, nothing is
+written. Config values that aren't sensible numbers fall back to defaults, the config
+file must be a small regular file (no symlinks or pipes), and if no temperature sensor
+can be read the curve runs the fans at full speed. `make test` checks the config parsing.
 
 ## How it works
 

@@ -4,3 +4,4 @@
 /FanCurve.app/
 *.o
 .DS_Store
+/tests/test_config

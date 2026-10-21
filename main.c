@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include <signal.h>
 #include <unistd.h>
 
@@ -131,6 +132,7 @@ static int apply_target(int fan, double rpm) {
     fan_key(kmn, fan, "Mn"); fan_key(kmx, fan, "Mx"); fan_key(ktg, fan, "Tg");
     double mn, mx;
     if (!read_num(kmn, &mn) || !read_num(kmx, &mx)) return 0;
+    if (!isfinite(rpm) || !isfinite(mn) || !isfinite(mx) || mn <= 0 || mx <= mn) return 0;
     if (rpm > mx) rpm = mx;          // never exceed the hardware maximum
     if (rpm < mn) rpm = mn;
     SMCVal_t tg;
@@ -221,6 +223,10 @@ static int cmd_set(int fan, const char *rpmArg) {
     if (strcmp(rpmArg, "max") == 0)      rpm = mx;
     else if (strcmp(rpmArg, "min") == 0) rpm = mn;
     else                                 rpm = atof(rpmArg);
+    if (!isfinite(rpm) || !isfinite(mn) || !isfinite(mx) || mx <= mn) {
+        fprintf(stderr, "invalid speed or fan limits\n");
+        return 1;
+    }
 
     // Safety clamp to hardware-reported range. Never exceed the maximum.
     double clamped = rpm;
@@ -297,6 +303,10 @@ int main(int argc, char **argv) {
     } else if (strcmp(cmd, "curve") == 0) {
         double low  = argc > 2 ? atof(argv[2]) : 55.0;
         double high = argc > 3 ? atof(argv[3]) : 90.0;
+        if (!isfinite(low) || !isfinite(high) || high <= low) {
+            fprintf(stderr, "curve needs numbers with LOW < HIGH\n");
+            return 2;
+        }
         int    sec  = argc > 4 ? atoi(argv[4]) : 3;
         rc = cmd_curve(low, high, sec);
     } else {
