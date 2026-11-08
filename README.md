@@ -8,7 +8,7 @@ I built it because I like a laptop that stays cool to the touch, and I didn't wa
 to keep paying for a fan app to get that. It runs every day on my 14-inch M1 Pro
 MacBook Pro (MacBookPro18,3, macOS 26), alongside its sister project
 [Battery Tool](https://github.com/noahberry01123/battery-tool), which moves everyday apps onto the
-efficiency cores. The story behind both: [Running My M1 Pro on Its Efficiency Cores]({{MEDIUM_ARTICLE_URL}}).
+efficiency cores. The story behind both: [Running My M1 Pro on Its Efficiency Cores](https://medium.com/@noah_berry_01123/running-my-m1-pro-on-its-efficiency-cores-what-i-measured-and-what-i-learned-d707447e6bd7).
 
 > **Use at your own risk.** This is a personal project that writes to the SMC (the
 > chip that controls the fans). Apple's firmware still protects the chip, but the
