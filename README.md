@@ -115,7 +115,7 @@ sudo ./fancurve auto            # back to macOS control
 
 ## Requirements
 
-Apple Silicon Mac, macOS 13+, Xcode command-line tools (`xcode-select --install`).
+Apple Silicon Mac, macOS 15+, Xcode command-line tools (`xcode-select --install`).
 No third-party dependencies. Tested on M1 Pro / macOS 26.
 
 ## Related
