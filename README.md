@@ -1,8 +1,8 @@
 # Fan Curve
 
 A small, safe, free fan controller for Apple Silicon Macs — a native menu-bar
-replacement for Macs Fan Control. Shows CPU/GPU temperature and fan speeds in the
-menu bar, with Auto / Manual / Curve control in a click-down popover.
+replacement for Macs Fan Control. Shows the CPU/GPU temperature in the menu bar,
+with fan speeds and Auto / Manual / Curve control in a click-down popover.
 
 I built it because I like a laptop that stays cool to the touch, and I didn't want
 to keep paying for a fan app to get that. It runs every day on my 14-inch M1 Pro
